@@ -99,11 +99,25 @@ ax.set_ylim(min(min(actual_sales), min(predicted_sales)) * 0.95, max(max(actual_
 # Rotate x-axis labels
 plt.xticks(rotation=45)
 
+# Initialize text annotations for sales amounts
+text_actual = ax.text(dates[0], min(actual_sales) * 0.95, '', fontsize=10, color='#8B5CF6')
+text_pred = ax.text(dates[0], min(predicted_sales) * 0.95, '', fontsize=10, color='#F59E0B')
+
 # Animation update function
 def update(frame):
     line_actual.set_data(dates[:frame+1], actual_sales[:frame+1])
     line_pred.set_data(dates[:frame+1], predicted_sales[:frame+1])
-    return line_actual, line_pred
+    
+    # Update text annotations with the latest sales amount
+    if frame > 0:
+        text_actual.set_x(dates[frame])
+        text_actual.set_y(actual_sales[frame])
+        text_actual.set_text(f'${actual_sales[frame]:.2f}')
+        
+        text_pred.set_x(dates[frame])
+        text_pred.set_y(predicted_sales[frame])
+        text_pred.set_text(f'${predicted_sales[frame]:.2f}')
+    return line_actual, line_pred, text_actual, text_pred
 
 # Create animation
 ani = FuncAnimation(fig, update, frames=len(dates), interval=100, blit=True)
@@ -125,7 +139,7 @@ except ValueError as e:
 plt.show()
 
 # Visualize training loss
-plt.figure(figsize=(12, 6))
+plt.figure(figsize=(12, 8))
 plt.plot(history.history['loss'], label='Training Loss')
 plt.plot(history.history['val_loss'], label='Validation Loss')
 plt.title('Model Loss Over Epochs')
